@@ -1,0 +1,13 @@
+name: NPCQuest
+main: streammz.repaircube.Core
+version: 0.0.1
+website: http://www.gamesketch.net
+author: Streammz
+description: >
+             NPC with quests
+commands:
+  rc:
+    description: RepairCube
+    usage: |
+           /<command> info
+           /<command> create
