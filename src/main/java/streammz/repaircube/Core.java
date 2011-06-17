@@ -25,6 +25,7 @@ import com.iConomy.*;
 
 import streammz.repaircube.CUBE.RepairCube;
 import streammz.repaircube.CUBE.RepairCubes;
+import streammz.repaircube.SQL.sqlCore;
 
 public class Core extends JavaPlugin {
 	public static ArrayList<RepairCube> cubes = new ArrayList<RepairCube>();
@@ -34,6 +35,8 @@ public class Core extends JavaPlugin {
 	BlockListener blockListener = new Blocklistener(this);
 	
 	public iConomy iConomy = null;
+	
+
 	
 	public void onDisable() {
 		RepairCubes.Save();
@@ -70,7 +73,8 @@ public class Core extends JavaPlugin {
 				if (getMaximumCubes(p) == 0) { p.sendMessage("You can't create repair cubes."); }
 				Block target = p.getTargetBlock(null, 5);
 				int id = target.getTypeId();
-				if (id == 4 || id == 5 || id == 41 || id == 42 || id == 57) {
+				System.out.println(target.getData());
+				if (id == 4 || id == 5 || id == 41 || id == 42 || id == 57 || (id == 35 && target.getData() == (byte)12)) {
 					if (getTotalCubes(p)+1 > getMaximumCubes(p)) { p.sendMessage("You've reached your limit of repair cubes"); return true; }
 					cubes.add(new RepairCube(p.getName(), target));
 					p.sendMessage("Repair cube created");
@@ -87,9 +91,11 @@ public class Core extends JavaPlugin {
 				p.sendMessage(ChatColor.GREEN + "Owner: " + ChatColor.GOLD + c.owner);
 				p.sendMessage(ChatColor.GREEN + "Material left: " + ChatColor.GOLD + c.currentMats);
 				p.sendMessage(ChatColor.GREEN + "===========" + ChatColor.GOLD + "Prices" + ChatColor.GREEN +  "=================");
-				p.sendMessage(ChatColor.GREEN + "Axe: " + ChatColor.GOLD + c.axePrice + ChatColor.GREEN + "   Pickaxe: " + ChatColor.GOLD + c.pickPrice + ChatColor.GREEN + "   Spade: " + ChatColor.GOLD + c.spadePrice);
-				p.sendMessage(ChatColor.GREEN + "Sword: " + ChatColor.GOLD + c.swordPrice + ChatColor.GREEN + "   Hoe: " + ChatColor.GOLD + c.hoePrice);
-				if (id == 41 || id == 42 || id == 57) { 
+				if (id != 35) {
+					p.sendMessage(ChatColor.GREEN + "Axe: " + ChatColor.GOLD + c.axePrice + ChatColor.GREEN + "   Pickaxe: " + ChatColor.GOLD + c.pickPrice + ChatColor.GREEN + "   Spade: " + ChatColor.GOLD + c.spadePrice);
+					p.sendMessage(ChatColor.GREEN + "Sword: " + ChatColor.GOLD + c.swordPrice + ChatColor.GREEN + "   Hoe: " + ChatColor.GOLD + c.hoePrice);
+				}
+				if (id == 41 || id == 42 || id == 57 || (id == 35 && target.getData() == (byte)12)) { 
 					p.sendMessage(ChatColor.GREEN + "ChestPlate: " + ChatColor.GOLD + c.bodyPrice + ChatColor.GREEN + "   Helmet: " + ChatColor.GOLD + c.helmPrice);
 					p.sendMessage(ChatColor.GREEN + "Legs: " + ChatColor.GOLD + c.legsPrice + ChatColor.GREEN + "   Boots: " + ChatColor.GOLD + c.feetPrice);
 				}
@@ -159,6 +165,7 @@ public class Core extends JavaPlugin {
 				if (target.getTypeId() == 42) mat = Material.IRON_INGOT;
 				if (target.getTypeId() == 41) mat = Material.GOLD_INGOT;
 				if (target.getTypeId() == 57) mat = Material.DIAMOND;
+				if (target.getTypeId() == 35) mat = Material.LEATHER;
 				
 				int max = getMaximumFill(p);
 				if (c.currentMats + i > max) {
@@ -201,6 +208,7 @@ public class Core extends JavaPlugin {
 					p.sendMessage(ChatColor.GREEN + "=" + ChatColor.WHITE + "  (ch)estplate (he)lmet         " + ChatColor.GREEN + "=");
 					p.sendMessage(ChatColor.GREEN + "=" + ChatColor.WHITE + "  (l)egs (b)oots                 " + ChatColor.GREEN + "=");
 					p.sendMessage(ChatColor.GREEN + "===========================");
+					p.sendMessage(ChatColor.GOLD + "Example:  /rc price pick 10");
 				} else {
 					Block target = p.getTargetBlock(null, 5);
 					RepairCube c = getRepairCube(target);
@@ -290,8 +298,8 @@ public class Core extends JavaPlugin {
 		return 0;
 	}
 	public static int getMaximumCubes(Player p) {
-		if (hasPermission(p, "repaircube.level2")) { return 4; }
-		if (hasPermission(p, "repaircube.level1")) { return 2; }
+		if (hasPermission(p, "repaircube.level2")) { return 8; }
+		if (hasPermission(p, "repaircube.level1")) { return 4; }
 		return 0;
 	}
 	

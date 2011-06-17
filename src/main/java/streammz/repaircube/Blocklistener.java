@@ -15,22 +15,23 @@ import streammz.repaircube.CUBE.RepairCubes;
 public class Blocklistener extends BlockListener {
 	Core plugin;
 	//constants
-	int[] tools = {256, 257, 258, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 283, 284, 285, 286, 290, 291, 292, 293, 294, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 346};
+	int[] tools = {256, 257, 258, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 283, 284, 285, 286, 290, 291, 292, 293, 294, 298, 299, 300, 301, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 346};
 	int[] woodtools = {268, 269, 270, 271, 290};
 	int[] stonetools = {272, 273, 274, 275, 291};
 	int[] irontools = {256, 257, 258, 267, 292, 306, 307, 308, 309};
 	int[] goldtools = {283, 284, 285, 286, 294, 314, 315, 316, 317};
 	int[] diatools = {276, 277, 278, 279, 293, 310, 311, 312, 313};
+	int[] leathertools = {298, 299, 300, 301};
 	int[] axes = {258, 271, 275, 279, 286};
 	int[] picks = {257, 270, 274, 278, 285};
 	int[] spades = {256, 269, 273, 277, 284};
 	int[] swords = {267, 268, 272, 276, 283};
 	int[] hoes = {290, 291, 292, 293, 294};
 	int[] armor = {306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317};
-	int[] chestplate = {307, 311, 315};
-	int[] helmets = {306, 310, 314};
-	int[] legs = {308, 312, 316};
-	int[] boots = {309, 313, 317};
+	int[] chestplate = {299, 307, 311, 315};
+	int[] helmets = {298, 306, 310, 314};
+	int[] legs = {300, 308, 312, 316};
+	int[] boots = {301, 309, 313, 317};
 	
 	public Blocklistener(Core plugin) {
 		this.plugin = plugin;
@@ -61,6 +62,7 @@ public class Blocklistener extends BlockListener {
 
 			int percent = getDurabilityPercent(hand);
 			int mats = getMaterialAmount(hand.getTypeId());
+			if (percent > 80) { mats = (int)Math.ceil(((double)mats)/2); }
 			
 			
 			if (!contains(tools, hand.getTypeId())) {
@@ -135,6 +137,15 @@ public class Blocklistener extends BlockListener {
 					return;
 				}
 			}
+			if (event.getBlock().getTypeId() == 35 && event.getBlock().getData() == (byte)12) {
+				if (contains(leathertools, hand.getTypeId())) {
+					hand.setDurability((short)0);
+					c.currentMats -= mats;
+				} else {
+					p.sendMessage("You cant repair this tool with this RepairCube");
+					return;
+				}
+			}
 			
 			this.getAccount(p.getName()).getHoldings().subtract(price);
 			
@@ -182,9 +193,7 @@ public class Blocklistener extends BlockListener {
 	}
 	private int getDurabilityPercent(ItemStack s) {
 		int realdura = s.getType().getMaxDurability() - s.getDurability();
-		System.out.println("realdura = " + realdura + "  max = " + s.getType().getMaxDurability());
 		int percent = (int) (100D / (double)s.getType().getMaxDurability() * (double)realdura);
-		System.out.println("percent = " + percent);
 		return percent;
 	}
 	private Account getAccount(String name) {
