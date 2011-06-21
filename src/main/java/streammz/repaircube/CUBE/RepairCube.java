@@ -1,5 +1,6 @@
 package streammz.repaircube.CUBE;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class RepairCube {
@@ -16,11 +17,14 @@ public class RepairCube {
 	public double legsPrice = 100.00;
 	public double feetPrice = 100.00;
 	
+	public Material expectedType;
+	
 	public int currentMats = 0;
 	
 	public RepairCube(String player, Block block) {
 		this.owner = player;
 		this.block = block;
+		this.expectedType = block.getType();
 	}
 	
 	public RepairCube(String player, Block block, double axe, double pick, double hoe, double sword, double spade, double body, double helm, double legs, double feet, int mats) {
@@ -36,6 +40,12 @@ public class RepairCube {
 		this.helmPrice = helm;
 		this.legsPrice = legs;
 		this.feetPrice = feet;
+		this.expectedType = block.getType();
+	}
+	
+	public boolean check() {
+		if (block.getType() != this.expectedType) return false;
+		return true;
 	}
 	
 	@Override

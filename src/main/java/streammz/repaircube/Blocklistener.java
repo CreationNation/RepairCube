@@ -71,6 +71,14 @@ public class Blocklistener extends BlockListener {
 				return;
 			}
 			
+			if (!c.check()) { 
+				//DUPING FAILSAFE
+				Core.cubes.remove(c); 
+				c = null;
+				p.sendMessage("Exploit detected, removed RepairCube");
+				return;
+			}
+			
 			
 			if (hand.getDurability() == 0) { p.sendMessage("That tool already is repaired"); return; }
 			

@@ -1,13 +1,16 @@
-name: NPCQuest
+name: RepairCube
 main: streammz.repaircube.Core
 version: 0.0.1
 website: http://www.gamesketch.net
 author: Streammz
 description: >
-             NPC with quests
+             RepairCubes which repair for iConomy money.
 commands:
   rc:
-    description: RepairCube
+    description: RepairCube Global command
     usage: |
            /<command> info
            /<command> create
+           /<command> remove
+           /<command> price <type> <price>
+           /<command> fill <amount>

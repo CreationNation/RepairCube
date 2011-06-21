@@ -20,12 +20,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import com.iConomy.*;
 
 import streammz.repaircube.CUBE.RepairCube;
 import streammz.repaircube.CUBE.RepairCubes;
-import streammz.repaircube.SQL.sqlCore;
 
 public class Core extends JavaPlugin {
 	public static ArrayList<RepairCube> cubes = new ArrayList<RepairCube>();
@@ -35,8 +35,7 @@ public class Core extends JavaPlugin {
 	BlockListener blockListener = new Blocklistener(this);
 	
 	public iConomy iConomy = null;
-	
-
+	public WorldGuardPlugin worldguard = null;
 	
 	public void onDisable() {
 		RepairCubes.Save();
@@ -45,6 +44,7 @@ public class Core extends JavaPlugin {
 	public void onEnable() {
 		RepairCubes.Load();
 		setupPermissions();
+		setupWorldGuard();
 		
 		//Listeners
 		PluginManager pm = getServer().getPluginManager();
@@ -70,10 +70,12 @@ public class Core extends JavaPlugin {
 			//  /rc price <p(ick) / a(xe) / h(oe) / sw(ord) / s(pade)> price
 			if (args.length == 0) { return false; }
 			if (args[0].equalsIgnoreCase("create")) {
-				if (getMaximumCubes(p) == 0) { p.sendMessage("You can't create repair cubes."); }
+				if (getMaximumCubes(p) == 0) { p.sendMessage("You can't create repair cubes."); return true; }
 				Block target = p.getTargetBlock(null, 5);
 				int id = target.getTypeId();
-				System.out.println(target.getData());
+				if (worldguard != null) {
+					if (!worldguard.canBuild(p, target)) { p.sendMessage("You are in an region that isn't owned by you."); return true; }
+				}
 				if (id == 4 || id == 5 || id == 41 || id == 42 || id == 57 || (id == 35 && target.getData() == (byte)12)) {
 					if (getTotalCubes(p)+1 > getMaximumCubes(p)) { p.sendMessage("You've reached your limit of repair cubes"); return true; }
 					cubes.add(new RepairCube(p.getName(), target));
@@ -114,6 +116,7 @@ public class Core extends JavaPlugin {
 				Material mat = Material.ARROW;
 				if (target.getTypeId() == 5) mat = Material.WOOD;
 				if (target.getTypeId() == 4) mat = Material.COBBLESTONE;
+				if (target.getTypeId() == 35) mat = Material.LEATHER;
 				if (target.getTypeId() == 42) mat = Material.IRON_INGOT;
 				if (target.getTypeId() == 41) mat = Material.GOLD_INGOT;
 				if (target.getTypeId() == 57) mat = Material.DIAMOND;
@@ -265,12 +268,17 @@ public class Core extends JavaPlugin {
 	    if (permissionHandler == null) {
 	    	if (permissionsPlugin != null) {
 	    		permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-	    		System.out.println("[Tetris] Permission found");
          	} else {
-	     		System.out.println("[Tetris] No permissions found");
 	     	}
 	     }
 	}
+    private void setupWorldGuard(){
+        Plugin test = this.getServer().getPluginManager().getPlugin("WorldGuard");
+       
+        if(test != null){
+            worldguard = (WorldGuardPlugin)getServer().getPluginManager().getPlugin("WorldGuard");
+        }
+    }
 	public static boolean hasPermission(Player p, String node) {
 		if (p.isOp()) { return true; }
 		if (!Bukkit.getServer().getPluginManager().isPluginEnabled("Permissions")) { return false; }
@@ -293,11 +301,13 @@ public class Core extends JavaPlugin {
 	}
 	
 	public static int getMaximumFill(Player p) {
+		if (hasPermission(p, "repaircube.level3")) { return 100000; }
 		if (hasPermission(p, "repaircube.level2")) { return 100; }
 		if (hasPermission(p, "repaircube.level1")) { return 50; }
 		return 0;
 	}
 	public static int getMaximumCubes(Player p) {
+		if (hasPermission(p, "repaircube.level3")) { return 1000; }
 		if (hasPermission(p, "repaircube.level2")) { return 8; }
 		if (hasPermission(p, "repaircube.level1")) { return 4; }
 		return 0;
